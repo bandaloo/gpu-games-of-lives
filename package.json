@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx browserify -t glslify main.js -o bundle.js",
     "start": "npx budo main.js:bundle.js --live -- bundle.js -t glslify"
   },
-  "author": "",
+  "author": "Cole Granof",
   "license": "ISC",
   "dependencies": {
     "browserify": "^16.5.0",
