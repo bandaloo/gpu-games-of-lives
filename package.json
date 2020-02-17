@@ -1,0 +1,14 @@
+{
+  "name": "gol-gpu",
+  "version": "1.0.0",
+  "description": "This is a version of the game of life we made in class, but extended to use GLSLify.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "glslify": "^7.0.0"
+  }
+}
