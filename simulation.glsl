@@ -11,10 +11,10 @@ uniform sampler2D state;
 uniform int rules[9];
 
 // constants for rules
-const int stay = 0;
-const int both = 1;
+const int die = 0;
+const int stay = 1;
 const int birth = 2;
-const int die = 3;
+const int both = 3;
 
 // look up individual cell values
 int get(int x, int y) {

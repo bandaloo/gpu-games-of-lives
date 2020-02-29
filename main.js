@@ -1,10 +1,10 @@
 const glslify = require("glslify");
 
 // constants for game of life;
-const stay = 0;
-const both = 1;
+const die = 0;
+const stay = 1;
 const birth = 2;
-const die = 3;
+const both = 3;
 
 let setRules = false;
 
