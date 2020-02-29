@@ -6,6 +6,8 @@ const both = 1;
 const birth = 2;
 const die = 3;
 
+let setRules = false;
+
 /** @type {Object<string, number[]>} */
 const rules = {
   conway: [die, die, stay, both, die, die, die, die, die],
@@ -58,7 +60,6 @@ window.onload = function() {
   makeBuffer();
   makeShaders();
   makeTextures();
-  setUpRules(rules.conway);
   setInitialState();
 };
 
@@ -180,6 +181,7 @@ function makeTextures() {
   gl.bindTexture(gl.TEXTURE_2D, textureBack);
 
   // these two lines are needed for non-power-of-2 textures
+  // TODO see if above comment still is true with webgl 2
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
@@ -236,6 +238,9 @@ function render() {
 
   // use our simulation shader
   gl.useProgram(simulationProgram);
+  if (!setRules) {
+    setUpRules(rules.conway);
+  }
   // update time on CPU and GPU
   time++;
   gl.uniform1f(uTime, time);
@@ -286,4 +291,5 @@ function render() {
  */
 function setUpRules(ruleset) {
   gl.uniform1iv(uRules, new Int32Array(ruleset));
+  setRules = true;
 }
