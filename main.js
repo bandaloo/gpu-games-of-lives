@@ -12,7 +12,7 @@ let setRules = false;
 const rules = {
   conway: [die, die, stay, both, die, die, die, die, die],
   caves: [die, die, die, die, stay, both, both, both, both],
-  highlife: [die, die, stay, both, birth, die, die, die, die]
+  highlife: [die, die, stay, both, die, die, birth, die, die]
 };
 
 /** @type {WebGLRenderingContext} */
@@ -91,7 +91,7 @@ function poke(x, y, value, texture) {
 function setInitialState() {
   for (let i = 0; i < dimensions.width; i++) {
     for (let j = 0; j < dimensions.height; j++) {
-      if (Math.random() > 0.75) {
+      if (Math.random() > 0.5) {
         poke(i, j, 255, textureBack);
       }
     }
