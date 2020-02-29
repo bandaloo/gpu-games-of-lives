@@ -32,7 +32,7 @@ window.onload = function() {
     "gl"
   ));
 
-  gl = /** @type {WebGLRenderingContext} */ (canvas.getContext("webgl"));
+  gl = /** @type {WebGLRenderingContext} */ (canvas.getContext("webgl2"));
   canvas.width = dimensions.width = window.innerWidth;
   canvas.height = dimensions.height = window.innerHeight;
 
