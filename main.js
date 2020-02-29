@@ -1,5 +1,18 @@
 const glslify = require("glslify");
 
+// constants for game of life;
+const stay = 0;
+const both = 1;
+const birth = 2;
+const die = 3;
+
+/** @type {Object<string, number[]>} */
+const rules = {
+  conway: [die, die, stay, both, die, die, die, die, die],
+  caves: [die, die, die, die, stay, both, both, both, both],
+  highlife: [die, die, stay, both, birth, die, die, die, die]
+};
+
 /** @type {WebGLRenderingContext} */
 let gl;
 
@@ -17,6 +30,9 @@ let uTime;
 
 /** @type {WebGLUniformLocation} */
 let uSimulationState;
+
+/** @type {WebGLUniformLocation} */
+let uRules;
 
 /** @type {WebGLTexture} */
 let textureBack;
@@ -42,6 +58,7 @@ window.onload = function() {
   makeBuffer();
   makeShaders();
   makeTextures();
+  setUpRules(rules.conway);
   setInitialState();
 };
 
@@ -151,6 +168,8 @@ function makeShaders() {
 
   uSimulationState = gl.getUniformLocation(simulationProgram, "state");
 
+  uRules = gl.getUniformLocation(simulationProgram, "rules");
+
   position = gl.getAttribLocation(simulationProgram, "a_position");
   gl.enableVertexAttribArray(position);
   gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
@@ -259,4 +278,12 @@ function render() {
   gl.useProgram(drawProgram);
   // put simulation on screen
   gl.drawArrays(gl.TRIANGLES, 0, 6);
+}
+
+/**
+ * set the uniform defining the rules of the game
+ * @param {number[]} ruleset
+ */
+function setUpRules(ruleset) {
+  gl.uniform1iv(uRules, new Int32Array(ruleset));
 }

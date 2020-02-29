@@ -8,6 +8,14 @@ uniform vec2 resolution;
 // simulation texture state, swapped each frame
 uniform sampler2D state;
 
+uniform int rules[9];
+
+// constants for rules
+const int stay = 0;
+const int both = 1;
+const int birth = 2;
+const int die = 3;
+
 // look up individual cell values
 int get(int x, int y) {
   return int(
@@ -17,7 +25,7 @@ int get(int x, int y) {
 
 void main() {
   // get sum of all surrounding nine neighbors
-  int sum = get(-1, - 1) + get(-1, 0) + get(-1, 1) + get(0, - 1) + get(0, 1) + get(1, - 1) + get(1, 0) + get(1, 1);
+  int sum = get(-1, -1) + get(-1, 0) + get(-1, 1) + get(0, -1) + get(0, 1) + get(1, -1) + get(1, 0) + get(1, 1);
   
   if (sum == 3) {
     // ideal # of neighbors... if cell is living, stay alive, if it is dead, come to life!
