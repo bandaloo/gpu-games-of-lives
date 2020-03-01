@@ -1,6 +1,9 @@
+import { addChecks } from "./rulescontrols.js";
+
 const glslify = require("glslify");
 
 // constants for game of life;
+// TODO move these
 const die = 0;
 const stay = 1;
 const birth = 2;
@@ -46,6 +49,7 @@ let textureFront;
 let dimensions = { width: null, height: null };
 
 window.onload = function() {
+  addChecks();
   const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(
     "gl"
   ));
@@ -60,7 +64,7 @@ window.onload = function() {
   makeBuffer();
   makeShaders();
   makeTextures();
-  setInitialState();
+  //setInitialState();
 };
 
 /**

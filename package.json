@@ -14,5 +14,22 @@
     "browserify": "^16.5.0",
     "budo": "^11.6.3",
     "glslify": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.6",
+    "babel-preset": "^1.1.1",
+    "babelify": "^10.0.0"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "@babel/preset-env"
+          ]
+        }
+      ]
+    ]
   }
 }

@@ -6,10 +6,37 @@
         margin: 0;
         background: black;
       }
+
+      .message {
+        position: absolute;
+        top: 0px;
+        z-index: 2;
+        margin-left: 16px;
+        margin-top: 16px;
+        color: white;
+        font-family: sans-serif;
+        width: 120px;
+        user-select: none;
+        background: black;
+        border: 2px solid white;
+      }
+
+      .rules {
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <canvas id="gl"></canvas>
+    <div class="message">
+      <table id="rulestable" class="rules" style="width:100%">
+        <tr>
+          <th>#</th>
+          <th>dead</th>
+          <th>alive</th>
+        </tr>
+      </table>
+    </div>
   </body>
-  <script src="bundle.js"></script>
+  <script src="bundle.js" type="module"></script>
 </html>
