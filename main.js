@@ -1,22 +1,12 @@
-import { addChecks } from "./rulescontrols.js";
+import {
+  addChecks,
+  rules,
+  getRulesUpToDate,
+  currentRules,
+  setRulesUpToDate
+} from "./rulescontrols.js";
 
 const glslify = require("glslify");
-
-// constants for game of life;
-// TODO move these
-const die = 0;
-const stay = 1;
-const birth = 2;
-const both = 3;
-
-let setRules = false;
-
-/** @type {Object<string, number[]>} */
-const rules = {
-  conway: [die, die, stay, both, die, die, die, die, die],
-  caves: [die, die, die, die, stay, both, both, both, both],
-  highlife: [die, die, stay, both, die, die, birth, die, die]
-};
 
 /** @type {WebGLRenderingContext} */
 let gl;
@@ -49,7 +39,7 @@ let textureFront;
 let dimensions = { width: null, height: null };
 
 window.onload = function() {
-  addChecks();
+  addChecks(rules.conway);
   const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(
     "gl"
   ));
@@ -64,7 +54,7 @@ window.onload = function() {
   makeBuffer();
   makeShaders();
   makeTextures();
-  //setInitialState();
+  setInitialState();
 };
 
 /**
@@ -242,8 +232,9 @@ function render() {
 
   // use our simulation shader
   gl.useProgram(simulationProgram);
-  if (!setRules) {
-    setUpRules(rules.conway);
+  if (!getRulesUpToDate()) {
+    gl.uniform1iv(uRules, new Int32Array(currentRules));
+    setRulesUpToDate(true);
   }
   // update time on CPU and GPU
   time++;
@@ -287,13 +278,4 @@ function render() {
   gl.useProgram(drawProgram);
   // put simulation on screen
   gl.drawArrays(gl.TRIANGLES, 0, 6);
-}
-
-/**
- * set the uniform defining the rules of the game
- * @param {number[]} ruleset
- */
-function setUpRules(ruleset) {
-  gl.uniform1iv(uRules, new Int32Array(ruleset));
-  setRules = true;
 }
