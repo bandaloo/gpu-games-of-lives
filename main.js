@@ -38,6 +38,8 @@ let textureFront;
 /** @type {{width: number, height: number}} */
 let dimensions = { width: null, height: null };
 
+let scale = 8;
+
 window.onload = function() {
   addChecks(rules.conway);
   const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(
@@ -47,6 +49,13 @@ window.onload = function() {
   gl = /** @type {WebGLRenderingContext} */ (canvas.getContext("webgl2"));
   canvas.width = dimensions.width = window.innerWidth;
   canvas.height = dimensions.height = window.innerHeight;
+
+  console.log(canvas.style.width);
+  console.log(canvas.style.height);
+
+  canvas.style.width = window.innerWidth * scale + "px";
+  canvas.style.height = window.innerHeight * scale + "px";
+  canvas.style.imageRendering = "pixelated"; // keeps from blurring
 
   // define drawing area of webgl canvas. bottom corner, width / height
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
