@@ -54,7 +54,7 @@ window.onload = function() {
   makeBuffer();
   makeShaders();
   makeTextures();
-  setInitialState();
+  //setInitialState();
 };
 
 /**
@@ -236,8 +236,6 @@ function render() {
     gl.uniform1iv(uRules, new Int32Array(currentRules));
     setRulesUpToDate(true);
   }
-  // update time on CPU and GPU
-  time++;
   gl.uniform1f(uTime, time);
   gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
   // use the framebuffer to write to our texFront texture
@@ -278,4 +276,6 @@ function render() {
   gl.useProgram(drawProgram);
   // put simulation on screen
   gl.drawArrays(gl.TRIANGLES, 0, 6);
+  // update time on CPU and GPU
+  time++;
 }

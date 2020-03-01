@@ -16,6 +16,16 @@ const int stay = 1;
 const int birth = 2;
 const int both = 3;
 
+// random function from book of shaders
+float random(vec2 st) {
+    return fract(sin(dot(st.xy / 123.45, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+// returns 1.0 or 0.0 based on chance
+float randomChance(vec2 st, float chance) {
+  return step(chance, random(st));
+}
+
 // look up individual cell values
 int get(int x, int y) {
   return int(
@@ -24,6 +34,12 @@ int get(int x, int y) {
 }
 
 void main() {
+  // randomize on the GPU at the beginning
+  if (time == 0.0) {
+    gl_FragColor = vec4(vec3(randomChance(gl_FragCoord.xy, 0.5)), 1.0);
+    return;
+  }
+
   // get sum of all surrounding nine neighbors
   int sum = get(-1, -1) + get(-1, 0) + get(-1, 1) + get(0, -1) + get(0, 1) + get(1, -1) + get(1, 0) + get(1, 1);
 
