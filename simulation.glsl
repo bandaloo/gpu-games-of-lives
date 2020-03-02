@@ -8,7 +8,11 @@ uniform vec2 resolution;
 // simulation texture state, swapped each frame
 uniform sampler2D state;
 
+// defines the rules of the board
 uniform int rules[9];
+
+// to seed the psuedorandom number generator
+uniform float seed;
 
 // constants for rules
 const int die = 0;
@@ -18,7 +22,7 @@ const int both = 3;
 
 // random function from book of shaders
 float random(vec2 st) {
-    return fract(sin(dot(st.xy / 123.45, vec2(12.9898, 78.233))) * 43758.5453123);
+  return fract(sin(dot(st.xy / 123.45, vec2(12.9898, 78.233))) * 43758.5453123 * (9.0 + seed));
 }
 
 // returns 1.0 or 0.0 based on chance
@@ -33,9 +37,7 @@ vec4 getPixel(int x, int y) {
 
 // look up individual cell values
 int get(int x, int y) {
-  return int(
-    getPixel(x, y).r
-  );
+  return int(getPixel(x, y).r);
 }
 
 // get stepped color of alive cell

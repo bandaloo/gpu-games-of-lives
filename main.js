@@ -43,6 +43,9 @@ let uTrailColor;
 /** @type {WebGLUniformLocation} */
 let uDeadColor;
 
+/** @type {WebGLUniformLocation} */
+let uSeed;
+
 /** @type {WebGLTexture} */
 let textureBack;
 
@@ -54,6 +57,7 @@ let dimensions = { width: null, height: null };
 
 let scale = 4;
 let delay = 1;
+let paused = false;
 let delayCount = 0;
 
 const MIN_SCALE = 1;
@@ -122,6 +126,8 @@ window.onload = function() {
 
   makeBuffer();
   makeShaders();
+  // seed the random number generator before render is called
+  gl.uniform1f(uSeed, Math.random());
   makeTextures();
 
   // stuff for color controls
@@ -160,6 +166,22 @@ window.onload = function() {
     "change",
     makeInputFunc(gl, uDeadColor, deadInput, "#000000")
   );
+
+  window.addEventListener("keypress", e => {
+    console.log(e.key);
+    switch (e.key) {
+      case "r":
+        time = 0;
+        // since the time is being reset, seed the randomness again
+        gl.uniform1f(uSeed, Math.random());
+        paused = false;
+        break;
+      case "p":
+        paused = !paused;
+      default:
+        break;
+    }
+  });
 };
 
 /**
@@ -269,6 +291,9 @@ function makeShaders() {
   uOldColor = gl.getUniformLocation(drawProgram, "oldColor");
   uTrailColor = gl.getUniformLocation(drawProgram, "trailColor");
   uDeadColor = gl.getUniformLocation(drawProgram, "deadColor");
+
+  // get random seed uniform location
+  uSeed = gl.getUniformLocation(simulationProgram, "seed");
 }
 
 function makeTextures() {
@@ -333,7 +358,7 @@ function render() {
 
   delayCount++;
   delayCount %= delay;
-  if (delayCount) return;
+  if (paused || delayCount) return;
 
   // use our simulation shader
   gl.useProgram(simulationProgram);
