@@ -26,10 +26,15 @@ float randomChance(vec2 st, float chance) {
   return step(chance, random(st));
 }
 
+// get a pixel value
+vec4 getPixel(int x, int y) {
+  return texture2D(state, (mod(gl_FragCoord.xy + vec2(x, y), resolution)) / resolution);
+}
+
 // look up individual cell values
 int get(int x, int y) {
   return int(
-    texture2D(state, (gl_FragCoord.xy + vec2(x, y)) / resolution).r
+    getPixel(x, y).r
   );
 }
 
