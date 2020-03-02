@@ -38,6 +38,16 @@ int get(int x, int y) {
   );
 }
 
+// get stepped color of alive cell
+vec4 getAliveColor(vec4 color) {
+  return vec4(1.0, 0.0, 0.01 + color.b, 1.0);
+}
+
+// get stepped color of dead cell
+vec4 getDeadColor(vec4 color) {
+  return vec4( 0.0, color.r * 1.0 + color.g * 0.95, 0.0, 1.0 );
+}
+
 void main() {
   // randomize on the GPU at the beginning
   if (time == 0.0) {
@@ -58,23 +68,25 @@ void main() {
       break;
     }
   }
-  
+
+  vec4 color = getPixel(0, 0);
   float current = float(get(0, 0));
+
   if (result == stay) {
     // maintain current state
-    gl_FragColor = vec4(vec3(current), 1.0);
+    gl_FragColor = vec4(color.r, color.g * 0.95, color.r * (0.01 + color.b), 1.0);
   } else if (result == both) {
     // ideal # of neighbors... if cell is living, stay alive, if it is dead, come to life!
-    gl_FragColor = vec4(1.0);
+    gl_FragColor = getAliveColor(color);
   } else if (result == birth) {
     // semi-ideal # of neighbors... if cell is living, die, but if dead, come to life
     if (current == 0.0) {
-      gl_FragColor = vec4(1.0);
+      gl_FragColor = getAliveColor(color);
     } else {
-      gl_FragColor = vec4(vec3(0.0), 1.0);
+      gl_FragColor = getDeadColor(color);
     }
   } else if (result == die) {
     // over-population or loneliness... cell dies
-    gl_FragColor = vec4(vec3(0.0), 1.0);
+    gl_FragColor = getDeadColor(color);
   }
 }
