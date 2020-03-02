@@ -6,6 +6,8 @@ import {
   setRulesUpToDate
 } from "./rulescontrols.js";
 
+import { clamp } from "./helpers.js";
+
 const glslify = require("glslify");
 
 /** @type {WebGLRenderingContext} */
@@ -38,23 +40,75 @@ let textureFront;
 /** @type {{width: number, height: number}} */
 let dimensions = { width: null, height: null };
 
-let scale = 8;
+let scale = 4;
+let delay = 1;
+let delayCount = 0;
+
+const MIN_SCALE = 1;
+const MAX_SCALE = 128;
+
+const MIN_DELAY = 1;
+const MAX_DELAY = 240;
+
+const DEFAULT_SCALE = 4;
+const DEFAULT_DELAY = 1;
+
+/**
+ * change the canvas size
+ * @param {HTMLCanvasElement} canvas
+ */
+function resizeCanvas(canvas) {
+  canvas.style.width = canvas.width * scale + "px";
+  canvas.style.height = canvas.height * scale + "px";
+}
 
 window.onload = function() {
-  addChecks(rules.conway);
   const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(
     "gl"
   ));
 
+  // game of life gui stuff
+  addChecks(rules.conway);
+  const scaleInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "scale"
+  ));
+
+  scaleInput.addEventListener("change", () => {
+    scale = clamp(parseInt(scaleInput.value), MIN_SCALE, MAX_SCALE);
+    scaleInput.value = "" + scale;
+    resizeCanvas(canvas);
+  });
+
+  scaleInput.min = "" + MIN_SCALE;
+  scaleInput.max = "" + MAX_SCALE;
+
+  scaleInput.value = "" + DEFAULT_SCALE;
+
+  const delayInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "delay"
+  ));
+
+  delayInput.min = "" + MIN_DELAY;
+  delayInput.max = "" + MAX_DELAY;
+
+  delayInput.value = "" + DEFAULT_DELAY;
+
+  delayInput.addEventListener("change", () => {
+    delay = clamp(parseInt(delayInput.value), MIN_DELAY, MAX_DELAY);
+    delayInput.value = "" + delay;
+  });
+
+  // graphics stuff
   gl = /** @type {WebGLRenderingContext} */ (canvas.getContext("webgl2"));
-  canvas.width = dimensions.width = window.innerWidth;
-  canvas.height = dimensions.height = window.innerHeight;
+  canvas.width = dimensions.width = 1920;
+  canvas.height = dimensions.height = 1080;
 
   console.log(canvas.style.width);
   console.log(canvas.style.height);
 
-  canvas.style.width = window.innerWidth * scale + "px";
-  canvas.style.height = window.innerHeight * scale + "px";
+  // TODO move these two lines to a function
+  resizeCanvas(canvas);
+
   canvas.style.imageRendering = "pixelated"; // keeps from blurring
 
   // define drawing area of webgl canvas. bottom corner, width / height
@@ -63,7 +117,6 @@ window.onload = function() {
   makeBuffer();
   makeShaders();
   makeTextures();
-  //setInitialState();
 };
 
 /**
@@ -238,6 +291,10 @@ function render() {
   // schedules render to be called the next time the video card requests
   // a frame of video
   window.requestAnimationFrame(render);
+
+  delayCount++;
+  delayCount %= delay;
+  if (delayCount) return;
 
   // use our simulation shader
   gl.useProgram(simulationProgram);
