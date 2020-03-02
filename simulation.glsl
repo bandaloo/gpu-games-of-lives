@@ -14,6 +14,9 @@ uniform int rules[9];
 // to seed the psuedorandom number generator
 uniform float seed;
 
+// whether to step the simulation
+uniform int paused;
+
 // constants for rules
 const int die = 0;
 const int stay = 1;
@@ -72,6 +75,13 @@ void main() {
   }
 
   vec4 color = getPixel(0, 0);
+
+  if (paused == 1) {
+    gl_FragColor = color;
+    return;
+  }
+
+  // TODO don't call get here (used color)
   float current = float(get(0, 0));
 
   if (result == stay) {

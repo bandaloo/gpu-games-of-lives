@@ -46,6 +46,9 @@ let uDeadColor;
 /** @type {WebGLUniformLocation} */
 let uSeed;
 
+/** @type {WebGLUniformLocation} */
+let uPaused;
+
 /** @type {WebGLTexture} */
 let textureBack;
 
@@ -58,6 +61,7 @@ let dimensions = { width: null, height: null };
 let scale = 4;
 let delay = 1;
 let paused = false;
+let justPaused = false;
 let delayCount = 0;
 
 const MIN_SCALE = 1;
@@ -128,6 +132,8 @@ window.onload = function() {
   makeShaders();
   // seed the random number generator before render is called
   gl.uniform1f(uSeed, Math.random());
+  // start the game unpaused
+  gl.uniform1i(uPaused, 0);
   makeTextures();
 
   // stuff for color controls
@@ -172,12 +178,12 @@ window.onload = function() {
     switch (e.key) {
       case "r":
         time = 0;
-        // since the time is being reset, seed the randomness again
-        gl.uniform1f(uSeed, Math.random());
         paused = false;
+        justPaused = true;
         break;
       case "p":
         paused = !paused;
+        justPaused = true;
       default:
         break;
     }
@@ -294,6 +300,9 @@ function makeShaders() {
 
   // get random seed uniform location
   uSeed = gl.getUniformLocation(simulationProgram, "seed");
+
+  // get the pause uniform location
+  uPaused = gl.getUniformLocation(simulationProgram, "paused");
 }
 
 function makeTextures() {
@@ -358,7 +367,7 @@ function render() {
 
   delayCount++;
   delayCount %= delay;
-  if (paused || delayCount) return;
+  if (delayCount) return;
 
   // use our simulation shader
   gl.useProgram(simulationProgram);
@@ -367,6 +376,13 @@ function render() {
     setRulesUpToDate(true);
   }
   gl.uniform1f(uTime, time);
+  // randomize the seed if simulation has just been reset
+  if (time === 0) gl.uniform1f(uSeed, Math.random());
+  // update the pause uniform if it has just changed
+  if (justPaused) {
+    justPaused = false;
+    gl.uniform1i(uPaused, ~~paused);
+  }
   gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
   // use the framebuffer to write to our texFront texture
   gl.framebufferTexture2D(
