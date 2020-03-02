@@ -6,7 +6,7 @@ import {
   setRulesUpToDate
 } from "./rulescontrols.js";
 
-import { clamp, hexColorToVector } from "./helpers.js";
+import { clamp, hexColorToVector, makeInputFunc } from "./helpers.js";
 
 const glslify = require("glslify");
 
@@ -79,6 +79,10 @@ window.onload = function() {
     "gl"
   ));
 
+  gl = /** @type {WebGLRenderingContext} */ (canvas.getContext("webgl2"));
+  canvas.width = dimensions.width = 1920;
+  canvas.height = dimensions.height = 1080;
+
   // game of life gui stuff
   addChecks(rules.conway);
   const scaleInput = /** @type {HTMLInputElement} */ (document.getElementById(
@@ -110,50 +114,7 @@ window.onload = function() {
     delayInput.value = "" + delay;
   });
 
-  // stuff for color controls
-  const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "youngcolor"
-  ));
-
-  youngInput.addEventListener("change", () => {
-    gl.uniform4fv(uYoungColor, hexColorToVector(youngInput.value));
-  });
-
-  const oldInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "oldcolor"
-  ));
-
-  oldInput.addEventListener("change", () => {
-    gl.uniform4fv(uOldColor, hexColorToVector(oldInput.value));
-  });
-
-  const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "trailcolor"
-  ));
-
-  trailInput.addEventListener("change", () => {
-    gl.uniform4fv(uTrailColor, hexColorToVector(trailInput.value));
-  });
-
-  const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "deadcolor"
-  ));
-
-  deadInput.addEventListener("change", () => {
-    gl.uniform4fv(uDeadColor, hexColorToVector(deadInput.value));
-  });
-
-  // graphics stuff
-  gl = /** @type {WebGLRenderingContext} */ (canvas.getContext("webgl2"));
-  canvas.width = dimensions.width = 1920;
-  canvas.height = dimensions.height = 1080;
-
-  console.log(canvas.style.width);
-  console.log(canvas.style.height);
-
-  // TODO move these two lines to a function
-  resizeCanvas(canvas);
-
+  resizeCanvas(canvas); // TODO move this
   canvas.style.imageRendering = "pixelated"; // keeps from blurring
 
   // define drawing area of webgl canvas. bottom corner, width / height
@@ -162,6 +123,43 @@ window.onload = function() {
   makeBuffer();
   makeShaders();
   makeTextures();
+
+  // stuff for color controls
+  const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "youngcolor"
+  ));
+
+  youngInput.addEventListener(
+    "change",
+    makeInputFunc(gl, uYoungColor, youngInput, "#ffffff")
+  );
+
+  const oldInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "oldcolor"
+  ));
+
+  oldInput.addEventListener(
+    "change",
+    makeInputFunc(gl, uOldColor, oldInput, "#ffffff")
+  );
+
+  const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "trailcolor"
+  ));
+
+  trailInput.addEventListener(
+    "change",
+    makeInputFunc(gl, uTrailColor, trailInput, "#777777")
+  );
+
+  const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "deadcolor"
+  ));
+
+  deadInput.addEventListener(
+    "change",
+    makeInputFunc(gl, uDeadColor, deadInput, "#000000")
+  );
 };
 
 /**
