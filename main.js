@@ -6,7 +6,7 @@ import {
   setRulesUpToDate
 } from "./rulescontrols.js";
 
-import { clamp } from "./helpers.js";
+import { clamp, hexColorToVector } from "./helpers.js";
 
 const glslify = require("glslify");
 
@@ -30,6 +30,18 @@ let uSimulationState;
 
 /** @type {WebGLUniformLocation} */
 let uRules;
+
+/** @type {WebGLUniformLocation} */
+let uYoungColor;
+
+/** @type {WebGLUniformLocation} */
+let uOldColor;
+
+/** @type {WebGLUniformLocation} */
+let uTrailColor;
+
+/** @type {WebGLUniformLocation} */
+let uDeadColor;
 
 /** @type {WebGLTexture} */
 let textureBack;
@@ -98,6 +110,39 @@ window.onload = function() {
     delayInput.value = "" + delay;
   });
 
+  // stuff for color controls
+  const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "youngcolor"
+  ));
+
+  youngInput.addEventListener("change", () => {
+    gl.uniform4fv(uYoungColor, hexColorToVector(youngInput.value));
+  });
+
+  const oldInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "oldcolor"
+  ));
+
+  oldInput.addEventListener("change", () => {
+    gl.uniform4fv(uOldColor, hexColorToVector(oldInput.value));
+  });
+
+  const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "trailcolor"
+  ));
+
+  trailInput.addEventListener("change", () => {
+    gl.uniform4fv(uTrailColor, hexColorToVector(trailInput.value));
+  });
+
+  const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "deadcolor"
+  ));
+
+  deadInput.addEventListener("change", () => {
+    gl.uniform4fv(uDeadColor, hexColorToVector(deadInput.value));
+  });
+
   // graphics stuff
   gl = /** @type {WebGLRenderingContext} */ (canvas.getContext("webgl2"));
   canvas.width = dimensions.width = 1920;
@@ -142,16 +187,6 @@ function poke(x, y, value, texture) {
     // is supposed to be a typed array
     new Uint8Array([value, value, value, 255])
   );
-}
-
-function setInitialState() {
-  for (let i = 0; i < dimensions.width; i++) {
-    for (let j = 0; j < dimensions.height; j++) {
-      if (Math.random() > 0.5) {
-        poke(i, j, 255, textureBack);
-      }
-    }
-  }
 }
 
 function makeBuffer() {
@@ -230,6 +265,12 @@ function makeShaders() {
   position = gl.getAttribLocation(simulationProgram, "a_position");
   gl.enableVertexAttribArray(position);
   gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+  // get all the color uniforms for the render shader
+  uYoungColor = gl.getUniformLocation(drawProgram, "youngColor");
+  uOldColor = gl.getUniformLocation(drawProgram, "oldColor");
+  uTrailColor = gl.getUniformLocation(drawProgram, "trailColor");
+  uDeadColor = gl.getUniformLocation(drawProgram, "deadColor");
 }
 
 function makeTextures() {

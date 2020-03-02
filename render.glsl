@@ -7,10 +7,10 @@ precision mediump float;
 uniform sampler2D uSampler;
 uniform vec2 resolution;
 
-vec4 youngColor = vec4(1.0, 1.0, 0.0, 1.0);
-vec4 oldColor = vec4(0.0, 1.0, 1.0, 1.0);
-vec4 trailColor = vec4(1.0, 0.0, 1.0, 1.0);
-vec4 deadColor = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec4 youngColor;
+uniform vec4 oldColor;
+uniform vec4 trailColor;
+uniform vec4 deadColor;
 
 void main() {
   vec4 originalColor = vec4(texture2D(uSampler, gl_FragCoord.xy / resolution).rgb, 1.0);
