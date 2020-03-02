@@ -1,4 +1,4 @@
-// simplest possible fragment shader
+// transforms the colors in the simulation into better ones
 
 #ifdef GL_ES
 precision mediump float;
@@ -7,6 +7,12 @@ precision mediump float;
 uniform sampler2D uSampler;
 uniform vec2 resolution;
 
+vec4 youngColor = vec4(1.0, 1.0, 0.0, 1.0);
+vec4 oldColor = vec4(0.0, 1.0, 1.0, 1.0);
+vec4 trailColor = vec4(1.0, 0.0, 1.0, 1.0);
+
 void main() {
-  gl_FragColor = vec4(texture2D(uSampler, gl_FragCoord.xy / resolution).rgb, 1.0);
+  vec4 originalColor = vec4(texture2D(uSampler, gl_FragCoord.xy / resolution).rgb, 1.0);
+  vec4 newColor = mix(youngColor, oldColor, originalColor.b) * originalColor.r + trailColor * originalColor.g;
+  gl_FragColor = newColor;
 }
