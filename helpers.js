@@ -19,19 +19,3 @@ export function hexColorToVector(str) {
   const vec = vals.map(n => parseInt(n, 16) / 255);
   return vec;
 }
-
-/**
- * makes the on change function for a color input
- * @param {WebGLUniformLocation} loc
- * @param {HTMLInputElement} input
- * @param {WebGLRenderingContext} gl
- * @param {string} color
- */
-export function makeInputFunc(gl, loc, input, color) {
-  input.value = color; // set initial color
-  const func = () => {
-    gl.uniform4fv(loc, hexColorToVector(input.value));
-  };
-  func(); // fire the function to set the colors
-  return func;
-}

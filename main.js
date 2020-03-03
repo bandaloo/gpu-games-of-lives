@@ -3,9 +3,12 @@ import {
   rules,
   getRulesUpToDate,
   currentRules,
-  setRulesUpToDate
+  setRulesUpToDate,
+  addColorChangeListeners,
+  getScale,
+  addNumberChangeListeners,
+  getDelay
 } from "./rulescontrols.js";
-import { clamp, makeInputFunc } from "./helpers.js";
 
 const glslify = require("glslify");
 
@@ -35,35 +38,15 @@ const glslify = require("glslify");
 let dimensions = { width: null, height: null };
 
 // state kept for controls
-let scale = 4;
-let delay = 1;
 let paused = false;
 let justPaused = false;
 let delayCount = 0;
-
-// constants for controls
-const MIN_SCALE = 1;
-const MAX_SCALE = 128;
-
-const MIN_DELAY = 1;
-const MAX_DELAY = 240;
-
-const DEFAULT_SCALE = 4;
-const DEFAULT_DELAY = 1;
-
-/**
- * change the canvas size
- * @param {HTMLCanvasElement} canvas
- */
-function resizeCanvas(canvas) {
-  canvas.style.width = canvas.width * scale + "px";
-  canvas.style.height = canvas.height * scale + "px";
-}
 
 window.onload = function() {
   const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(
     "gl"
   ));
+  canvas.style.imageRendering = "pixelated"; // keeps from blurring
 
   gl = /** @type {WebGLRenderingContext} */ (canvas.getContext("webgl2"));
   canvas.width = dimensions.width = 1920;
@@ -71,37 +54,7 @@ window.onload = function() {
 
   // game of life gui stuff
   addChecks(rules.conway);
-  const scaleInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "scale"
-  ));
-
-  scaleInput.addEventListener("change", () => {
-    scale = clamp(parseInt(scaleInput.value), MIN_SCALE, MAX_SCALE);
-    scaleInput.value = "" + scale;
-    resizeCanvas(canvas);
-  });
-
-  scaleInput.min = "" + MIN_SCALE;
-  scaleInput.max = "" + MAX_SCALE;
-
-  scaleInput.value = "" + DEFAULT_SCALE;
-
-  const delayInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "delay"
-  ));
-
-  delayInput.min = "" + MIN_DELAY;
-  delayInput.max = "" + MAX_DELAY;
-
-  delayInput.value = "" + DEFAULT_DELAY;
-
-  delayInput.addEventListener("change", () => {
-    delay = clamp(parseInt(delayInput.value), MIN_DELAY, MAX_DELAY);
-    delayInput.value = "" + delay;
-  });
-
-  resizeCanvas(canvas); // TODO move this
-  canvas.style.imageRendering = "pixelated"; // keeps from blurring
+  addNumberChangeListeners(canvas);
 
   // define drawing area of webgl canvas. bottom corner, width / height
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -112,45 +65,10 @@ window.onload = function() {
   gl.uniform1f(uSeed, Math.random());
   // start the game unpaused
   gl.uniform1i(uPaused, 0);
-  makeTextures();
+  makeTextures(); // TODO move render out of makeTextures
 
   // stuff for color controls
-  // TODO move all of this
-  const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "youngcolor"
-  ));
-
-  youngInput.addEventListener(
-    "change",
-    makeInputFunc(gl, uYoungColor, youngInput, "#ffffff")
-  );
-
-  const oldInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "oldcolor"
-  ));
-
-  oldInput.addEventListener(
-    "change",
-    makeInputFunc(gl, uOldColor, oldInput, "#ffffff")
-  );
-
-  const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "trailcolor"
-  ));
-
-  trailInput.addEventListener(
-    "change",
-    makeInputFunc(gl, uTrailColor, trailInput, "#777777")
-  );
-
-  const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "deadcolor"
-  ));
-
-  deadInput.addEventListener(
-    "change",
-    makeInputFunc(gl, uDeadColor, deadInput, "#000000")
-  );
+  addColorChangeListeners(gl, uYoungColor, uOldColor, uTrailColor, uDeadColor);
 
   window.addEventListener("keypress", e => {
     console.log(e.key);
@@ -221,13 +139,10 @@ function makeShaders() {
   // create fragment shader
   const fragmentSource = glslify.file("./render.glsl");
   drawProgram = createAndCompileFrag(fragmentSource, vertexShader);
-
-  // set the resolution of the draw program to dimensions of draw buffer
   setPositionAndRes(drawProgram);
 
   const simulationSource = glslify.file("./simulation.glsl");
   simulationProgram = createAndCompileFrag(simulationSource, vertexShader);
-
   setPositionAndRes(simulationProgram);
 
   // find a pointer to the uniform "time" in our fragment shader
@@ -262,11 +177,16 @@ function setPositionAndRes(program) {
   const position = gl.getAttribLocation(program, "a_position");
   gl.enableVertexAttribArray(position);
 
-  // this will point to the vertices in the last bound array buffer. In this
-  // example, we only use one array buffer, where we're storing our vertices
+  // this will point to the vertices in the last bound array buffer. We only use
+  // one array buffer, where we're storing our vertices
   gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
 }
 
+/**
+ * create, compile, link and use a fragment shader
+ * @param {string} source
+ * @param {WebGLShader} vertexShader
+ */
 function createAndCompileFrag(source, vertexShader) {
   const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
   gl.shaderSource(fragmentShader, source);
@@ -292,7 +212,7 @@ function makeTextures() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   // how to map when texture element is less than one pixel
-  // use gl.NEAREST to avoid linear interpolation
+  // use `gl.NEAREST` to avoid linear interpolation
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   // how to map when texture element is more than one pixel
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -343,7 +263,7 @@ function render() {
   window.requestAnimationFrame(render);
 
   delayCount++;
-  delayCount %= delay;
+  delayCount %= getDelay();
   if (delayCount) return;
 
   // use our simulation shader

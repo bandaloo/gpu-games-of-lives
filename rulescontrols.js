@@ -1,3 +1,5 @@
+import { hexColorToVector, clamp } from "./helpers.js";
+
 // constants for game of life
 const die = 0;
 const stay = 1;
@@ -5,6 +7,18 @@ const birth = 2;
 const both = 3;
 
 let rulesUpToDate = false;
+
+// constants for controls
+const MIN_SCALE = 1;
+const MAX_SCALE = 128;
+const MIN_DELAY = 1;
+const MAX_DELAY = 240;
+const DEFAULT_SCALE = 4;
+const DEFAULT_DELAY = 1;
+
+// state kept for controls
+let scale = DEFAULT_SCALE;
+let delay = 1;
 
 /** @type {Object<string, number[]>} */
 export const rules = {
@@ -88,4 +102,127 @@ export function getRulesUpToDate() {
 
 export function setRulesUpToDate(val = true) {
   rulesUpToDate = val;
+}
+
+/**
+ *
+ * @param {WebGLRenderingContext} gl
+ * @param {WebGLUniformLocation} uYoungColor
+ * @param {WebGLUniformLocation} uOldColor
+ * @param {WebGLUniformLocation} uTrailColor
+ * @param {WebGLUniformLocation} uDeadColor
+ */
+export function addColorChangeListeners(
+  gl,
+  uYoungColor,
+  uOldColor,
+  uTrailColor,
+  uDeadColor
+) {
+  // TODO move all of this
+  const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "youngcolor"
+  ));
+
+  youngInput.addEventListener(
+    "change",
+    makeInputFunc(gl, uYoungColor, youngInput, "#ffffff")
+  );
+
+  const oldInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "oldcolor"
+  ));
+
+  oldInput.addEventListener(
+    "change",
+    makeInputFunc(gl, uOldColor, oldInput, "#ffffff")
+  );
+
+  const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "trailcolor"
+  ));
+
+  trailInput.addEventListener(
+    "change",
+    makeInputFunc(gl, uTrailColor, trailInput, "#777777")
+  );
+
+  const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "deadcolor"
+  ));
+
+  deadInput.addEventListener(
+    "change",
+    makeInputFunc(gl, uDeadColor, deadInput, "#000000")
+  );
+}
+
+/**
+ * makes the on change function for a color input
+ * @param {WebGLUniformLocation} loc
+ * @param {HTMLInputElement} input
+ * @param {WebGLRenderingContext} gl
+ * @param {string} color
+ */
+function makeInputFunc(gl, loc, input, color) {
+  input.value = color; // set initial color
+  const func = () => {
+    gl.uniform4fv(loc, hexColorToVector(input.value));
+  };
+  func(); // fire the function to set the colors
+  return func;
+}
+
+/**
+ * add event listeners on the number fields
+ * @param {HTMLCanvasElement} canvas
+ */
+export function addNumberChangeListeners(canvas) {
+  const scaleInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "scale"
+  ));
+
+  scaleInput.addEventListener("change", () => {
+    scale = clamp(parseInt(scaleInput.value), MIN_SCALE, MAX_SCALE);
+    scaleInput.value = "" + scale;
+    resizeCanvas(canvas);
+  });
+
+  scaleInput.min = "" + MIN_SCALE;
+  scaleInput.max = "" + MAX_SCALE;
+
+  scaleInput.value = "" + DEFAULT_SCALE;
+
+  const delayInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "delay"
+  ));
+
+  delayInput.min = "" + MIN_DELAY;
+  delayInput.max = "" + MAX_DELAY;
+
+  delayInput.value = "" + DEFAULT_DELAY;
+
+  delayInput.addEventListener("change", () => {
+    delay = clamp(parseInt(delayInput.value), MIN_DELAY, MAX_DELAY);
+    delayInput.value = "" + delay;
+  });
+
+  resizeCanvas(canvas);
+}
+
+/**
+ * change the canvas size
+ * @param {HTMLCanvasElement} canvas
+ */
+function resizeCanvas(canvas) {
+  canvas.style.width = canvas.width * getScale() + "px";
+  canvas.style.height = canvas.height * getScale() + "px";
+}
+
+export function getScale() {
+  return scale;
+}
+
+export function getDelay() {
+  return delay;
 }
