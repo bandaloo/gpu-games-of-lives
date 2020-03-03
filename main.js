@@ -5,65 +5,43 @@ import {
   currentRules,
   setRulesUpToDate
 } from "./rulescontrols.js";
-
-import { clamp, hexColorToVector, makeInputFunc } from "./helpers.js";
+import { clamp, makeInputFunc } from "./helpers.js";
 
 const glslify = require("glslify");
 
-/** @type {WebGLRenderingContext} */
-let gl;
+/** @type {WebGLRenderingContext} */ let gl;
+/** @type {WebGLFramebuffer} */ let framebuffer;
 
-/** @type {WebGLFramebuffer} */
-let framebuffer;
+// the programs used to simulate and render
+/** @type {WebGLProgram} */ let simulationProgram;
+/** @type {WebGLProgram} */ let drawProgram;
 
-/** @type {WebGLProgram} */
-let simulationProgram;
+// the uniforms in the simulation shader
+/** @type {WebGLUniformLocation} */ let uTime;
+/** @type {WebGLUniformLocation} */ let uSimulationState;
+/** @type {WebGLUniformLocation} */ let uRules;
+/** @type {WebGLUniformLocation} */ let uSeed;
+/** @type {WebGLUniformLocation} */ let uPaused;
 
-/** @type {WebGLProgram} */
-let drawProgram;
-
-/** @type {WebGLUniformLocation} */
-let uTime;
-
-/** @type {WebGLUniformLocation} */
-let uSimulationState;
-
-/** @type {WebGLUniformLocation} */
-let uRules;
-
-/** @type {WebGLUniformLocation} */
-let uYoungColor;
-
-/** @type {WebGLUniformLocation} */
-let uOldColor;
-
-/** @type {WebGLUniformLocation} */
-let uTrailColor;
-
-/** @type {WebGLUniformLocation} */
-let uDeadColor;
-
-/** @type {WebGLUniformLocation} */
-let uSeed;
-
-/** @type {WebGLUniformLocation} */
-let uPaused;
-
-/** @type {WebGLTexture} */
-let textureBack;
-
-/** @type {WebGLTexture} */
-let textureFront;
+// the uniforms in the render shader
+/** @type {WebGLUniformLocation} */ let uYoungColor;
+/** @type {WebGLUniformLocation} */ let uOldColor;
+/** @type {WebGLUniformLocation} */ let uTrailColor;
+/** @type {WebGLUniformLocation} */ let uDeadColor;
+/** @type {WebGLTexture} */ let textureBack;
+/** @type {WebGLTexture} */ let textureFront;
 
 /** @type {{width: number, height: number}} */
 let dimensions = { width: null, height: null };
 
+// state kept for controls
 let scale = 4;
 let delay = 1;
 let paused = false;
 let justPaused = false;
 let delayCount = 0;
 
+// constants for controls
 const MIN_SCALE = 1;
 const MAX_SCALE = 128;
 
@@ -137,6 +115,7 @@ window.onload = function() {
   makeTextures();
 
   // stuff for color controls
+  // TODO move all of this
   const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
     "youngcolor"
   ));
@@ -178,6 +157,7 @@ window.onload = function() {
     switch (e.key) {
       case "r":
         time = 0;
+        // TODO make puase and play functions
         paused = false;
         justPaused = true;
         break;
@@ -191,6 +171,7 @@ window.onload = function() {
 };
 
 /**
+ * create an alive cell at position
  * @param {number} x
  * @param {number} y
  * @param {number} value
@@ -211,7 +192,7 @@ function poke(x, y, value, texture) {
     gl.RGBA,
     gl.UNSIGNED_BYTE,
     // is supposed to be a typed array
-    new Uint8Array([value, value, value, 255])
+    new Uint8Array([value, 0, 0, 255])
   );
 }
 
@@ -225,8 +206,8 @@ function makeBuffer() {
   const points = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
   const triangles = new Float32Array(points);
 
-  // initialize memory for buffer and populate it. Give
-  // open gl hint contents will not change dynamically.
+  // initialize memory for buffer and populate it. Give open gl hint contents
+  // will not change dynamically
   gl.bufferData(gl.ARRAY_BUFFER, triangles, gl.STATIC_DRAW);
 }
 
@@ -239,47 +220,15 @@ function makeShaders() {
 
   // create fragment shader
   const fragmentSource = glslify.file("./render.glsl");
-  const drawFragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-  gl.shaderSource(drawFragmentShader, fragmentSource);
-  gl.compileShader(drawFragmentShader);
-  console.log(gl.getShaderInfoLog(drawFragmentShader));
+  drawProgram = createAndCompileFrag(fragmentSource, vertexShader);
 
-  // create render program that draws to screen
-  drawProgram = gl.createProgram();
-  gl.attachShader(drawProgram, vertexShader);
-  gl.attachShader(drawProgram, drawFragmentShader);
-
-  gl.linkProgram(drawProgram);
-  gl.useProgram(drawProgram);
-
-  const uResDraw = gl.getUniformLocation(drawProgram, "resolution");
-  gl.uniform2f(uResDraw, gl.drawingBufferWidth, gl.drawingBufferHeight);
-
-  // get position attribute location in shader
-  let position = gl.getAttribLocation(drawProgram, "a_position");
-  // enable the attribute
-  gl.enableVertexAttribArray(position);
-
-  // this will point to the vertices in the last bound array buffer. In this
-  // example, we only use one array buffer, where we're storing our vertices
-  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+  // set the resolution of the draw program to dimensions of draw buffer
+  setPositionAndRes(drawProgram);
 
   const simulationSource = glslify.file("./simulation.glsl");
-  const simulationFragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-  gl.shaderSource(simulationFragmentShader, simulationSource);
-  gl.compileShader(simulationFragmentShader);
-  console.log(gl.getShaderInfoLog(simulationFragmentShader));
+  simulationProgram = createAndCompileFrag(simulationSource, vertexShader);
 
-  // create simulation program
-  simulationProgram = gl.createProgram();
-  gl.attachShader(simulationProgram, vertexShader);
-  gl.attachShader(simulationProgram, simulationFragmentShader);
-
-  gl.linkProgram(simulationProgram);
-  gl.useProgram(simulationProgram);
-
-  const uResSimulation = gl.getUniformLocation(simulationProgram, "resolution");
-  gl.uniform2f(uResSimulation, gl.drawingBufferWidth, gl.drawingBufferHeight);
+  setPositionAndRes(simulationProgram);
 
   // find a pointer to the uniform "time" in our fragment shader
   uTime = gl.getUniformLocation(simulationProgram, "time");
@@ -287,10 +236,6 @@ function makeShaders() {
   uSimulationState = gl.getUniformLocation(simulationProgram, "state");
 
   uRules = gl.getUniformLocation(simulationProgram, "rules");
-
-  position = gl.getAttribLocation(simulationProgram, "a_position");
-  gl.enableVertexAttribArray(position);
-  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
 
   // get all the color uniforms for the render shader
   uYoungColor = gl.getUniformLocation(drawProgram, "youngColor");
@@ -303,6 +248,38 @@ function makeShaders() {
 
   // get the pause uniform location
   uPaused = gl.getUniformLocation(simulationProgram, "paused");
+}
+
+/**
+ * set uniforms for resolution and set vertices to render to
+ * @param {WebGLProgram} program
+ */
+function setPositionAndRes(program) {
+  // set the resolution for the draw program to dimensions of draw buffer
+  const uRes = gl.getUniformLocation(program, "resolution");
+  gl.uniform2f(uRes, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+  const position = gl.getAttribLocation(program, "a_position");
+  gl.enableVertexAttribArray(position);
+
+  // this will point to the vertices in the last bound array buffer. In this
+  // example, we only use one array buffer, where we're storing our vertices
+  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+}
+
+function createAndCompileFrag(source, vertexShader) {
+  const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fragmentShader, source);
+  gl.compileShader(fragmentShader);
+  console.log(gl.getShaderInfoLog(fragmentShader));
+
+  const program = gl.createProgram();
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+
+  gl.linkProgram(program);
+  gl.useProgram(program);
+  return program;
 }
 
 function makeTextures() {
