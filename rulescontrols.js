@@ -55,13 +55,9 @@ class CheckPair {
       checkbox.type = "checkbox";
       checkbox.addEventListener("click", () => {
         // hack to convert pairs of booleans to int from 0 to 3
-        currentRules[this.num] =
-          2 * ~~this.deadCheckbox.checked + ~~this.aliveCheckbox.checked;
+        currentRules[this.num] = this.getRuleNum();
         rulesUpToDate = false;
-        console.log(currentRules);
       });
-
-      console.log(currentRules);
 
       return checkbox;
     };
@@ -72,6 +68,10 @@ class CheckPair {
     numberCell.innerHTML = "" + num;
     deadCell.appendChild(this.deadCheckbox);
     aliveCell.appendChild(this.aliveCheckbox);
+  }
+
+  getRuleNum() {
+    return 2 * ~~this.deadCheckbox.checked + ~~this.aliveCheckbox.checked;
   }
 }
 
@@ -181,6 +181,14 @@ function makeInputFunc(gl, loc, input, color) {
   };
   func(); // fire the function to set the colors
   return func;
+}
+
+export function makeRuleString() {
+  let str = "";
+  for (const rule of currentRules) {
+    str += rule.toString(2).padStart(2, "0");
+  }
+  return str;
 }
 
 /**
