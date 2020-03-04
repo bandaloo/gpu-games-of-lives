@@ -32,10 +32,33 @@
         height: 100vh;
       }
 
-      .control {
+      .space {
         margin-top: 10px;
+      }
+
+      .control {
         display: flex;
         justify-content: space-between;
+      }
+
+      .button {
+        background-color: #00000000;
+        color: white;
+        font-family: sans-serif;
+        font-size: 12pt;
+        font-weight: bold;
+        padding: 4px 8px;
+        border: 2px solid white;
+      }
+
+      .button:hover {
+        background-color: #ffffff55;
+      }
+
+      .textarea {
+        font-size: 8pt;
+        resize: none;
+        word-break: break-all;
       }
     </style>
   </head>
@@ -52,31 +75,42 @@
         </tr>
       </table>
 
-      <div class="control">
+      <div class="control space">
         <b>scale: </b>
         <input id="scale" type="number" />
       </div>
-      <div class="control">
+      <div class="control space">
         <b>delay: </b>
         <input id="delay" type="number" />
       </div>
-      <div class="control">
+      <div class="control space">
         <b>young: </b>
         <input id="youngcolor" type="color" />
       </div>
-      <div class="control">
+      <div class="control space">
         <b>old: </b>
         <input id="oldcolor" type="color" />
       </div>
-      <div class="control">
+      <div class="control space">
         <b>trail: </b>
         <input id="trailcolor" type="color" />
       </div>
-      <div class="control">
+      <div class="control space">
         <b>dead: </b>
         <input id="deadcolor" type="color" />
       </div>
     </div>
+    <div class="message control" style="margin-left: 160px; width: 340px">
+      <button class="button">copy</button>
+      <textarea
+        readonly
+        class="textarea"
+        id="sharetext"
+        rows="2"
+        cols="50"
+      ></textarea>
+    </div>
   </body>
+  <!-- running this script here ensures DOM is loaded by now -->
   <script src="bundle.js" type="module"></script>
 </html>

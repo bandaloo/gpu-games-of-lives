@@ -6,7 +6,8 @@ import {
   setRulesUpToDate,
   addColorChangeListeners,
   addNumberChangeListeners,
-  getDelay
+  getDelay,
+  generateShareUrl
 } from "./rulescontrols.js";
 
 const glslify = require("glslify");
@@ -68,6 +69,7 @@ window.onload = function() {
 
   // stuff for color controls
   addColorChangeListeners(gl, uYoungColor, uOldColor, uTrailColor, uDeadColor);
+  generateShareUrl();
 
   window.addEventListener("keypress", e => {
     console.log(e.key);

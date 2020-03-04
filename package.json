@@ -1,7 +1,7 @@
 {
-  "name": "gol-gpu",
-  "version": "1.0.0",
-  "description": "This is a version of the game of life we made in class, but extended to use GLSLify.",
+  "name": "gpu-games-of-lives",
+  "version": "0.1.0",
+  "description": "web toy for making variants of game of life",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -8,6 +8,23 @@ const both = 3;
 
 let rulesUpToDate = false;
 
+// we know DOM is already loaded since script tag is after body
+const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
+  "youngcolor"
+));
+const oldInput = /** @type {HTMLInputElement} */ (document.getElementById(
+  "oldcolor"
+));
+const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
+  "trailcolor"
+));
+const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
+  "deadcolor"
+));
+let shareText = /** @type {HTMLTextAreaElement} */ document.getElementById(
+  "sharetext"
+);
+
 // constants for controls
 const MIN_SCALE = 1;
 const MAX_SCALE = 128;
@@ -110,7 +127,7 @@ export function setRulesUpToDate(val = true) {
 }
 
 /**
- *
+ * adds event listeners to the color input
  * @param {WebGLRenderingContext} gl
  * @param {WebGLUniformLocation} uYoungColor
  * @param {WebGLUniformLocation} uOldColor
@@ -135,36 +152,20 @@ export function addColorChangeListeners(
   const deadVar = getVariable("d");
   const deadColor = deadVar !== undefined ? "#" + deadVar : "#000000";
 
-  const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "youngcolor"
-  ));
-
   youngInput.addEventListener(
     "change",
     makeInputFunc(gl, uYoungColor, youngInput, youngColor)
   );
-
-  const oldInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "oldcolor"
-  ));
 
   oldInput.addEventListener(
     "change",
     makeInputFunc(gl, uOldColor, oldInput, oldColor)
   );
 
-  const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "trailcolor"
-  ));
-
   trailInput.addEventListener(
     "change",
     makeInputFunc(gl, uTrailColor, trailInput, trailColor)
   );
-
-  const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
-    "deadcolor"
-  ));
 
   deadInput.addEventListener(
     "change",
@@ -185,7 +186,10 @@ function makeInputFunc(gl, loc, input, color) {
     gl.uniform4fv(loc, hexColorToVector(input.value));
   };
   func(); // fire the function to set the colors
-  return func;
+  return () => {
+    func();
+    generateShareUrl();
+  };
 }
 
 export function makeRuleString() {
@@ -239,6 +243,30 @@ export function addNumberChangeListeners(canvas) {
   });
 
   resizeCanvas(canvas);
+}
+
+/**
+ * gets the url color string from a color input
+ * @param {HTMLInputElement} input
+ */
+function getColorString(input) {
+  return input.value.slice(1);
+}
+
+export function generateShareUrl() {
+  let url = window.location.href.split("?")[0];
+  let query =
+    "?y=" +
+    getColorString(youngInput) +
+    "&o=" +
+    getColorString(oldInput) +
+    "&t=" +
+    getColorString(trailInput) +
+    "&d=" +
+    getColorString(deadInput) +
+    "&r=" +
+    makeRuleString();
+  shareText.innerHTML = url + query;
 }
 
 /**
