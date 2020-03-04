@@ -21,9 +21,16 @@ const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
 const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
   "deadcolor"
 ));
-let shareText = /** @type {HTMLTextAreaElement} */ document.getElementById(
+const shareText = /** @type {HTMLTextAreaElement} */ (document.getElementById(
   "sharetext"
-);
+));
+const copyButton = /** @type {HTMLButtonElement} */ (document.getElementById(
+  "copybutton"
+));
+copyButton.addEventListener("click", () => {
+  shareText.select();
+  document.execCommand("copy");
+});
 
 // constants for controls
 const MIN_SCALE = 1;
@@ -267,6 +274,7 @@ export function generateShareUrl() {
     "&r=" +
     makeRuleString();
   shareText.innerHTML = url + query;
+  // TODO should it be innerText?
 }
 
 /**
