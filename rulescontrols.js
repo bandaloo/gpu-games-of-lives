@@ -80,6 +80,7 @@ class CheckPair {
       checkbox.addEventListener("click", () => {
         currentRules[this.num] = this.getRuleNum();
         rulesUpToDate = false;
+        generateShareUrl();
       });
 
       return checkbox;

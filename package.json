@@ -1,8 +1,8 @@
 {
   "name": "gpu-games-of-lives",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "web toy for making variants of game of life",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx browserify -t glslify main.js -o bundle.js",

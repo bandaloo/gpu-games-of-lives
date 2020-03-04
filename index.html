@@ -8,11 +8,7 @@
       }
 
       .message {
-        position: absolute;
-        top: 0px;
-        z-index: 2;
-        margin-left: 16px;
-        margin-top: 16px;
+        margin: 8px;
         color: white;
         font-family: sans-serif;
         width: 120px;
@@ -33,12 +29,25 @@
       }
 
       .space {
-        margin-top: 10px;
+        margin-top: 8px;
+        margin-bottom: 8px;
       }
 
       .control {
         display: flex;
         justify-content: space-between;
+      }
+
+      .bar {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .overlay {
+        top: 0px;
+        z-index: 2;
+        position: absolute;
       }
 
       .button {
@@ -60,55 +69,74 @@
         resize: none;
         word-break: break-all;
       }
+
+      .control:first-child {
+        margin-top: 0px;
+      }
+
+      .control:last-child {
+        margin-bottom: 0px;
+      }
     </style>
   </head>
   <body>
     <div class="canvasholder">
       <canvas id="gl"></canvas>
     </div>
-    <div class="message">
-      <table id="rulestable" class="rules" style="width:100%">
-        <tr>
-          <th>#</th>
-          <th>dead</th>
-          <th>alive</th>
-        </tr>
-      </table>
-
-      <div class="control space">
-        <b>scale: </b>
-        <input id="scale" type="number" />
+    <div id="guiholder">
+      <div class="bar overlay">
+        <div class="message">
+          <table id="rulestable" class="rules" style="width:100%">
+            <tr>
+              <th>#</th>
+              <th>dead</th>
+              <th>alive</th>
+            </tr>
+          </table>
+        </div>
+        <div class="message">
+          <div class="control space">
+            <b>scale: </b>
+            <input id="scale" type="number" />
+          </div>
+          <div class="control space">
+            <b>delay: </b>
+            <input id="delay" type="number" />
+          </div>
+        </div>
+        <div class="message">
+          <div class="control space">
+            <b>young: </b>
+            <input id="youngcolor" type="color" />
+          </div>
+          <div class="control space">
+            <b>old: </b>
+            <input id="oldcolor" type="color" />
+          </div>
+          <div class="control space">
+            <b>trail: </b>
+            <input id="trailcolor" type="color" />
+          </div>
+          <div class="control space">
+            <b>dead: </b>
+            <input id="deadcolor" type="color" />
+          </div>
+        </div>
       </div>
-      <div class="control space">
-        <b>delay: </b>
-        <input id="delay" type="number" />
+      <div class="message control overlay" style="left: 152px; width: 340px">
+        <button class="button" id="copybutton">copy</button>
+        <textarea
+          readonly
+          class="textarea"
+          id="sharetext"
+          rows="2"
+          cols="50"
+        ></textarea>
       </div>
-      <div class="control space">
-        <b>young: </b>
-        <input id="youngcolor" type="color" />
+      <div class="message overlay" style="right: 0px; width: auto">
+        <h2 style="margin: 4px">games of lives maker</h2>
+        <p style="margin: 4px; text-align: right;">v0.1.1</p>
       </div>
-      <div class="control space">
-        <b>old: </b>
-        <input id="oldcolor" type="color" />
-      </div>
-      <div class="control space">
-        <b>trail: </b>
-        <input id="trailcolor" type="color" />
-      </div>
-      <div class="control space">
-        <b>dead: </b>
-        <input id="deadcolor" type="color" />
-      </div>
-    </div>
-    <div class="message control" style="margin-left: 160px; width: 340px">
-      <button class="button" id="copybutton">copy</button>
-      <textarea
-        readonly
-        class="textarea"
-        id="sharetext"
-        rows="2"
-        cols="50"
-      ></textarea>
     </div>
   </body>
   <!-- running this script here ensures DOM is loaded by now -->
