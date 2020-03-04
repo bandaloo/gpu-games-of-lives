@@ -186,7 +186,7 @@ function makeInputFunc(gl, loc, input, color) {
 export function makeRuleString() {
   let str = "";
   for (const rule of currentRules) {
-    str += rule.toString(2).padStart(2, "0");
+    str += rule;
   }
   return str;
 }
