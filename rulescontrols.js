@@ -54,7 +54,6 @@ class CheckPair {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.addEventListener("click", () => {
-        // hack to convert pairs of booleans to int from 0 to 3
         currentRules[this.num] = this.getRuleNum();
         rulesUpToDate = false;
       });
@@ -70,6 +69,7 @@ class CheckPair {
     aliveCell.appendChild(this.aliveCheckbox);
   }
 
+  // hack to convert pairs of booleans to int from 0 to 3
   getRuleNum() {
     return 2 * ~~this.deadCheckbox.checked + ~~this.aliveCheckbox.checked;
   }
@@ -80,13 +80,18 @@ class CheckPair {
  * @param {number[]} startRules
  */
 export function addChecks(startRules) {
-  currentRules = startRules;
+  const queryRules = getVariable("r");
+  if (queryRules !== undefined) {
+    currentRules = parseRuleString(queryRules);
+  } else {
+    currentRules = startRules;
+  }
 
   for (let i = 0; i < 9; i++) {
     const checkPair = new CheckPair(i);
     // TODO be able to set rules even outside construction
     checkList.push(checkPair);
-    const booleanRules = startRules[i]
+    const booleanRules = currentRules[i]
       .toString(2)
       .padStart(2, "0")
       .split("")
@@ -189,6 +194,14 @@ export function makeRuleString() {
     str += rule;
   }
   return str;
+}
+
+/**
+ * parse the base 4 rule string into an array
+ * @param {string} str
+ */
+export function parseRuleString(str) {
+  return str.split("").map(s => parseInt(s));
 }
 
 /**
