@@ -1,4 +1,4 @@
-import { hexColorToVector, clamp } from "./helpers.js";
+import { hexColorToVector, clamp, getVariable } from "./helpers.js";
 
 // constants for game of life
 const die = 0;
@@ -119,14 +119,24 @@ export function addColorChangeListeners(
   uTrailColor,
   uDeadColor
 ) {
-  // TODO move all of this
+  // get data from query string if any
+  // example query string: `?y=ff0000&o=00ff00&t=0000ff&d=ffff00`
+  const youngVar = getVariable("y");
+  const youngColor = youngVar !== undefined ? "#" + youngVar : "#ffffff";
+  const oldVar = getVariable("o");
+  const oldColor = oldVar !== undefined ? "#" + oldVar : "#ffffff";
+  const trailVar = getVariable("t");
+  const trailColor = trailVar !== undefined ? "#" + trailVar : "#777777";
+  const deadVar = getVariable("d");
+  const deadColor = deadVar !== undefined ? "#" + deadVar : "#000000";
+
   const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
     "youngcolor"
   ));
 
   youngInput.addEventListener(
     "change",
-    makeInputFunc(gl, uYoungColor, youngInput, "#ffffff")
+    makeInputFunc(gl, uYoungColor, youngInput, youngColor)
   );
 
   const oldInput = /** @type {HTMLInputElement} */ (document.getElementById(
@@ -135,7 +145,7 @@ export function addColorChangeListeners(
 
   oldInput.addEventListener(
     "change",
-    makeInputFunc(gl, uOldColor, oldInput, "#ffffff")
+    makeInputFunc(gl, uOldColor, oldInput, oldColor)
   );
 
   const trailInput = /** @type {HTMLInputElement} */ (document.getElementById(
@@ -144,7 +154,7 @@ export function addColorChangeListeners(
 
   trailInput.addEventListener(
     "change",
-    makeInputFunc(gl, uTrailColor, trailInput, "#777777")
+    makeInputFunc(gl, uTrailColor, trailInput, trailColor)
   );
 
   const deadInput = /** @type {HTMLInputElement} */ (document.getElementById(
@@ -153,7 +163,7 @@ export function addColorChangeListeners(
 
   deadInput.addEventListener(
     "change",
-    makeInputFunc(gl, uDeadColor, deadInput, "#000000")
+    makeInputFunc(gl, uDeadColor, deadInput, deadColor)
   );
 }
 

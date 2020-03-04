@@ -19,3 +19,19 @@ export function hexColorToVector(str) {
   const vec = vals.map(n => parseInt(n, 16) / 255);
   return vec;
 }
+
+/**
+ * gets the string value of variable from query string
+ * @param {string} variable
+ */
+export function getVariable(variable) {
+  const query = window.location.search.substring(1);
+  const vars = query.split("&");
+  for (let i = 0; i < vars.length; i++) {
+    let pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  }
+  return undefined;
+}

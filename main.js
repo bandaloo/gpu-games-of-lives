@@ -5,7 +5,6 @@ import {
   currentRules,
   setRulesUpToDate,
   addColorChangeListeners,
-  getScale,
   addNumberChangeListeners,
   getDelay
 } from "./rulescontrols.js";
