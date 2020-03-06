@@ -12,7 +12,8 @@ import {
   playOrPause,
   getJustPaused,
   getPaused,
-  pausedUpdated
+  pausedUpdated,
+  getFillProb
 } from "./rulescontrols.js";
 
 const glslify = require("glslify");
@@ -30,6 +31,7 @@ const glslify = require("glslify");
 /** @type {WebGLUniformLocation} */ let uRules;
 /** @type {WebGLUniformLocation} */ let uSeed;
 /** @type {WebGLUniformLocation} */ let uPaused;
+/** @type {WebGLUniformLocation} */ let uProb;
 
 // the uniforms in the render shader
 /** @type {WebGLUniformLocation} */ let uYoungColor;
@@ -151,6 +153,7 @@ function makeShaders() {
   simulationProgram = createAndCompileFrag(simulationSource, vertexShader);
   setPositionAndRes(simulationProgram);
 
+  // TODO move the getting of uniforms to its own function
   // find a pointer to the uniform "time" in our fragment shader
   uTime = gl.getUniformLocation(simulationProgram, "time");
 
@@ -169,6 +172,9 @@ function makeShaders() {
 
   // get the pause uniform location
   uPaused = gl.getUniformLocation(simulationProgram, "paused");
+
+  // initial starting condition chance
+  uProb = gl.getUniformLocation(simulationProgram, "prob");
 }
 
 /**
@@ -280,7 +286,10 @@ function render() {
   }
   gl.uniform1f(uTime, time);
   // randomize the seed if simulation has just been reset
-  if (time === 0) gl.uniform1f(uSeed, Math.random());
+  if (time === 0) {
+    gl.uniform1f(uProb, getFillProb());
+    gl.uniform1f(uSeed, Math.random());
+  }
   // update the pause uniform if it has just changed
   if (getJustPaused()) {
     gl.uniform1i(uPaused, ~~getPaused());

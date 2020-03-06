@@ -49,10 +49,11 @@ const MIN_DELAY = 1;
 const MAX_DELAY = 240;
 const DEFAULT_SCALE = 4;
 const DEFAULT_DELAY = 1;
+const DEFAULT_FILL_PERCENT = 50;
 
-// state kept for controls
 let scale = DEFAULT_SCALE;
 let delay = 1;
+let fillPercent = DEFAULT_FILL_PERCENT;
 
 /** @type {Object<string, number[]>} */
 export const rules = {
@@ -260,6 +261,16 @@ export function addNumberChangeListeners(canvas) {
     delayInput.value = "" + delay;
   });
 
+  const fillInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "fillpercent"
+  ));
+
+  fillInput.addEventListener("change", () => {
+    fillPercent = clamp(parseInt(fillInput.value), 0, 100);
+    fillInput.value = "" + fillPercent;
+    generateShareUrl();
+  });
+
   resizeCanvas(canvas);
 }
 
@@ -332,6 +343,10 @@ export function playOrPause() {
   paused = !paused;
   justPaused = true;
   updatePausedText();
+}
+
+export function getFillProb() {
+  return fillPercent / 100;
 }
 
 function updatePausedText() {

@@ -17,6 +17,9 @@ uniform float seed;
 // whether to step the simulation
 uniform int paused;
 
+// chance for initial starting condition
+uniform float prob;
+
 // constants for rules
 const int die = 0;
 const int stay = 1;
@@ -56,7 +59,7 @@ vec4 getDeadColor(vec4 color) {
 void main() {
   // randomize on the GPU at the beginning
   if (time == 0.0) {
-    gl_FragColor = vec4(vec3(randomChance(gl_FragCoord.xy, 0.5)), 1.0);
+    gl_FragColor = vec4(vec3(randomChance(gl_FragCoord.xy, prob)), 1.0);
     return;
   }
 
