@@ -1,6 +1,6 @@
 {
   "name": "gpu-games-of-lives",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "web toy for making variants of game of life",
   "main": "main.js",
   "scripts": {
@@ -20,6 +20,7 @@
     "babel-preset": "^1.1.1",
     "babelify": "^10.0.0"
   },
+  "repository": "https://github.com/bandaloo/gpu-games-of-lives",
   "browserify": {
     "transform": [
       [
