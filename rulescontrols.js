@@ -49,7 +49,7 @@ const MIN_DELAY = 1;
 const MAX_DELAY = 240;
 const DEFAULT_SCALE = 4;
 const DEFAULT_DELAY = 1;
-const DEFAULT_FILL_PERCENT = 20;
+const DEFAULT_FILL_PERCENT = 50;
 
 let scale = DEFAULT_SCALE;
 let delay = 1;
