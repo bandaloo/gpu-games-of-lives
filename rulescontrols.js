@@ -49,11 +49,13 @@ const MIN_DELAY = 1;
 const MAX_DELAY = 240;
 const DEFAULT_SCALE = 4;
 const DEFAULT_DELAY = 1;
-const DEFAULT_FILL_PERCENT = 50;
+const DEFAULT_FILL_PERCENT = 20;
 
 let scale = DEFAULT_SCALE;
 let delay = 1;
-let fillPercent = DEFAULT_FILL_PERCENT;
+let fillPercent = getVariable("f")
+  ? parseInt(getVariable("f"))
+  : DEFAULT_FILL_PERCENT;
 
 /** @type {Object<string, number[]>} */
 export const rules = {
@@ -265,6 +267,8 @@ export function addNumberChangeListeners(canvas) {
     "fillpercent"
   ));
 
+  fillInput.value = "" + fillPercent;
+
   fillInput.addEventListener("change", () => {
     fillPercent = clamp(parseInt(fillInput.value), 0, 100);
     fillInput.value = "" + fillPercent;
@@ -294,7 +298,9 @@ export function generateShareUrl() {
     "&d=" +
     getColorString(deadInput) +
     "&r=" +
-    makeRuleString();
+    makeRuleString() +
+    "&f=" +
+    fillPercent;
   shareText.innerHTML = url + query;
   // TODO should it be innerText?
 }
