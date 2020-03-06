@@ -70,12 +70,17 @@
         word-break: break-all;
       }
 
-      .control:first-child {
+      .space:first-child {
         margin-top: 0px;
       }
 
-      .control:last-child {
+      .space:last-child {
         margin-bottom: 0px;
+      }
+
+      .fill {
+        width: 100%;
+        display: block;
       }
     </style>
   </head>
@@ -120,6 +125,18 @@
           <div class="control space">
             <b>dead: </b>
             <input id="deadcolor" type="color" />
+          </div>
+        </div>
+        <div class="message">
+          <div class="control space">
+            <button class="button fill space" id="randombutton">
+              randomize
+            </button>
+          </div>
+          <div class="control space">
+            <button class="button fill space" id="pausebutton">
+              pause
+            </button>
           </div>
         </div>
       </div>

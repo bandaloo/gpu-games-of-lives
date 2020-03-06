@@ -7,7 +7,12 @@ import {
   addColorChangeListeners,
   addNumberChangeListeners,
   getDelay,
-  generateShareUrl
+  generateShareUrl,
+  setPaused,
+  playOrPause,
+  getJustPaused,
+  getPaused,
+  pausedUpdated
 } from "./rulescontrols.js";
 
 const glslify = require("glslify");
@@ -38,8 +43,6 @@ const glslify = require("glslify");
 let dimensions = { width: null, height: null };
 
 // state kept for controls
-let paused = false;
-let justPaused = false;
 let delayCount = 0;
 
 window.onload = function() {
@@ -76,16 +79,18 @@ window.onload = function() {
     switch (e.key) {
       case "r":
         time = 0;
-        // TODO make puase and play functions
-        paused = false;
-        justPaused = true;
+        setPaused(false);
         break;
       case "p":
-        paused = !paused;
-        justPaused = true;
+        playOrPause();
       default:
         break;
     }
+  });
+
+  document.getElementById("randombutton").addEventListener("click", () => {
+    time = 0;
+    setPaused(false);
   });
 };
 
@@ -277,9 +282,9 @@ function render() {
   // randomize the seed if simulation has just been reset
   if (time === 0) gl.uniform1f(uSeed, Math.random());
   // update the pause uniform if it has just changed
-  if (justPaused) {
-    justPaused = false;
-    gl.uniform1i(uPaused, ~~paused);
+  if (getJustPaused()) {
+    gl.uniform1i(uPaused, ~~getPaused());
+    pausedUpdated();
   }
   gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
   // use the framebuffer to write to our texFront texture

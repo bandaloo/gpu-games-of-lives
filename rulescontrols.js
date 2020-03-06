@@ -8,6 +8,10 @@ const both = 3;
 
 let rulesUpToDate = false;
 
+// state kept for controls
+let paused = false;
+let justPaused = false;
+
 // we know DOM is already loaded since script tag is after body
 const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
   "youngcolor"
@@ -30,6 +34,12 @@ const copyButton = /** @type {HTMLButtonElement} */ (document.getElementById(
 copyButton.addEventListener("click", () => {
   shareText.select();
   document.execCommand("copy");
+});
+const pauseButton = /** @type {HTMLButtonElement} */ (document.getElementById(
+  "pausebutton"
+));
+pauseButton.addEventListener("click", () => {
+  playOrPause();
 });
 
 // constants for controls
@@ -293,4 +303,37 @@ export function getScale() {
 
 export function getDelay() {
   return delay;
+}
+
+export function getPaused() {
+  return paused;
+}
+
+/**
+ * @param {boolean} pauseState
+ */
+export function setPaused(pauseState) {
+  if (justPaused !== paused) {
+    justPaused = pauseState;
+    paused = pauseState;
+    updatePausedText();
+  }
+}
+
+export function getJustPaused() {
+  return justPaused;
+}
+
+export function pausedUpdated() {
+  justPaused = false;
+}
+
+export function playOrPause() {
+  paused = !paused;
+  justPaused = true;
+  updatePausedText();
+}
+
+function updatePausedText() {
+  pauseButton.innerText = paused ? "play" : "pause";
 }
