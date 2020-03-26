@@ -1,5 +1,16 @@
 import { hexColorToVector, clamp, getVariable } from "./helpers.js";
 
+// constants for controls
+const MIN_SCALE = 1;
+const MAX_SCALE = 128;
+const MIN_DELAY = 1;
+const MAX_DELAY = 240;
+const DEFAULT_SCALE = 4;
+const DEFAULT_DELAY = 1;
+const DEFAULT_FILL_PERCENT = 50;
+const DEFAULT_ALIVE_MIX = 95;
+const DEFAULT_DEAD_MIX = 95;
+
 // constants for game of life
 const die = 0;
 const stay = 1;
@@ -11,6 +22,10 @@ let rulesUpToDate = false;
 // state kept for controls
 let paused = false;
 let justPaused = false;
+let aliveMix;
+let deadMix;
+
+let mixesChanged = false;
 
 // we know DOM is already loaded since script tag is after body
 const youngInput = /** @type {HTMLInputElement} */ (document.getElementById(
@@ -41,15 +56,6 @@ const pauseButton = /** @type {HTMLButtonElement} */ (document.getElementById(
 pauseButton.addEventListener("click", () => {
   playOrPause();
 });
-
-// constants for controls
-const MIN_SCALE = 1;
-const MAX_SCALE = 128;
-const MIN_DELAY = 1;
-const MAX_DELAY = 240;
-const DEFAULT_SCALE = 4;
-const DEFAULT_DELAY = 1;
-const DEFAULT_FILL_PERCENT = 50;
 
 let scale = DEFAULT_SCALE;
 let delay = 1;
@@ -175,22 +181,22 @@ export function addColorChangeListeners(
 
   youngInput.addEventListener(
     "change",
-    makeInputFunc(gl, uYoungColor, youngInput, youngColor)
+    makeColorInputFunc(gl, uYoungColor, youngInput, youngColor)
   );
 
   oldInput.addEventListener(
     "change",
-    makeInputFunc(gl, uOldColor, oldInput, oldColor)
+    makeColorInputFunc(gl, uOldColor, oldInput, oldColor)
   );
 
   trailInput.addEventListener(
     "change",
-    makeInputFunc(gl, uTrailColor, trailInput, trailColor)
+    makeColorInputFunc(gl, uTrailColor, trailInput, trailColor)
   );
 
   deadInput.addEventListener(
     "change",
-    makeInputFunc(gl, uDeadColor, deadInput, deadColor)
+    makeColorInputFunc(gl, uDeadColor, deadInput, deadColor)
   );
 }
 
@@ -201,7 +207,7 @@ export function addColorChangeListeners(
  * @param {WebGLRenderingContext} gl
  * @param {string} color
  */
-function makeInputFunc(gl, loc, input, color) {
+function makeColorInputFunc(gl, loc, input, color) {
   input.value = color; // set initial color
   const func = () => {
     gl.uniform4fv(loc, hexColorToVector(input.value));
@@ -275,6 +281,48 @@ export function addNumberChangeListeners(canvas) {
     generateShareUrl();
   });
 
+  /**
+   * @param {HTMLInputElement} input
+   * @param {number} val
+   * @param {boolean} val
+   */
+  const setupMix = (input, val, alive) => {
+    input.value = "" + val; // set initial value
+    const func = () => {
+      if (input.value === "") input.value = "0";
+      const mix = Math.round(10 * clamp(parseFloat(input.value), 0, 100)) / 10;
+      input.value = "" + mix;
+      const normalMix = mix / 100;
+      alive ? (aliveMix = normalMix) : (deadMix = normalMix);
+      mixesChanged = true;
+    };
+    func();
+    input.addEventListener("change", () => {
+      func();
+      generateShareUrl();
+    });
+  };
+
+  const aliveMixInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "alivemix"
+  ));
+
+  setupMix(
+    aliveMixInput,
+    getVariable("a") ? parseFloat(getVariable("a")) : DEFAULT_ALIVE_MIX,
+    true
+  );
+
+  const deadMixInput = /** @type {HTMLInputElement} */ (document.getElementById(
+    "deadmix"
+  ));
+
+  setupMix(
+    deadMixInput,
+    getVariable("g") ? parseFloat(getVariable("g")) : DEFAULT_DEAD_MIX,
+    false
+  );
+
   resizeCanvas(canvas);
 }
 
@@ -297,6 +345,12 @@ export function generateShareUrl() {
     getColorString(trailInput) +
     "&d=" +
     getColorString(deadInput) +
+    (aliveMix !== DEFAULT_ALIVE_MIX / 100
+      ? "&a=" + (aliveMix * 100).toFixed(2)
+      : "") +
+    (deadMix !== DEFAULT_DEAD_MIX / 100
+      ? "&g=" + (deadMix * 100).toFixed(2)
+      : "") +
     "&r=" +
     makeRuleString() +
     "&f=" +
@@ -335,6 +389,18 @@ export function setPaused(pauseState) {
     paused = pauseState;
     updatePausedText();
   }
+}
+
+export function getMixesChanged() {
+  return mixesChanged;
+}
+
+export function setMixesChanged(changed = false) {
+  mixesChanged = changed;
+}
+
+export function getMixes() {
+  return { alive: aliveMix, dead: deadMix };
 }
 
 export function getJustPaused() {

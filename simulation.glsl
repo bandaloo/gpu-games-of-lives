@@ -20,15 +20,15 @@ uniform int paused;
 // chance for initial starting condition
 uniform float prob;
 
+// uniforms for color drop rate
+uniform float aliveMix;
+uniform float deadMix;
+
 // constants for rules
 const int die = 0;
 const int stay = 1;
 const int birth = 2;
 const int both = 3;
-
-// constants for color mixing
-const float aliveMix = 0.94;
-const float deadMix = 0.95;
 
 // random function from book of shaders
 float random(vec2 st) {
