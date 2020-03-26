@@ -20,6 +20,10 @@ uniform int paused;
 // chance for initial starting condition
 uniform float prob;
 
+// uniforms for color drop rate
+uniform float aliveMix;
+uniform float deadMix;
+
 // constants for rules
 const int die = 0;
 const int stay = 1;
@@ -48,12 +52,12 @@ int get(int x, int y) {
 
 // get stepped color of alive cell
 vec4 getAliveColor(vec4 color) {
-  return vec4(1.0, 0.0, 0.01 + color.b, 1.0);
+  return vec4(1.0, 0.0, (1.0 - color.r) * 1.0 + aliveMix * color.b, 1.0);
 }
 
 // get stepped color of dead cell
 vec4 getDeadColor(vec4 color) {
-  return vec4( 0.0, color.r * 1.0 + color.g * 0.95, 0.0, 1.0 );
+  return vec4( 0.0, color.r * 1.0 + color.g * deadMix, 0.0, 1.0 );
 }
 
 void main() {
@@ -89,7 +93,7 @@ void main() {
 
   if (result == stay) {
     // maintain current state
-    gl_FragColor = vec4(color.r, color.g * 0.95, color.r * (0.01 + color.b), 1.0);
+    gl_FragColor = vec4(color.r, color.g * deadMix, color.r * (aliveMix * color.b), 1.0);
   } else if (result == both) {
     // ideal # of neighbors... if cell is living, stay alive, if it is dead, come to life!
     gl_FragColor = getAliveColor(color);

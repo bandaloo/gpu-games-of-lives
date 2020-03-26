@@ -13,7 +13,10 @@ import {
   getJustPaused,
   getPaused,
   pausedUpdated,
-  getFillProb
+  getFillProb,
+  getMixesChanged,
+  getMixes,
+  setMixesChanged
 } from "./rulescontrols.js";
 
 const glslify = require("glslify");
@@ -38,6 +41,8 @@ const glslify = require("glslify");
 /** @type {WebGLUniformLocation} */ let uOldColor;
 /** @type {WebGLUniformLocation} */ let uTrailColor;
 /** @type {WebGLUniformLocation} */ let uDeadColor;
+/** @type {WebGLUniformLocation} */ let uAliveMix;
+/** @type {WebGLUniformLocation} */ let uDeadMix;
 /** @type {WebGLTexture} */ let textureBack;
 /** @type {WebGLTexture} */ let textureFront;
 
@@ -59,7 +64,6 @@ window.onload = function() {
 
   // game of life gui stuff
   addChecks(rules.conway);
-  addNumberChangeListeners(canvas);
 
   // define drawing area of webgl canvas. bottom corner, width / height
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -73,6 +77,7 @@ window.onload = function() {
   makeTextures(); // TODO move render out of makeTextures
 
   // stuff for color controls
+  addNumberChangeListeners(canvas, gl, uAliveMix, uDeadMix);
   addColorChangeListeners(gl, uYoungColor, uOldColor, uTrailColor, uDeadColor);
   generateShareUrl();
 
@@ -175,6 +180,10 @@ function makeShaders() {
 
   // initial starting condition chance
   uProb = gl.getUniformLocation(simulationProgram, "prob");
+
+  // get uniforms for mixing
+  uAliveMix = gl.getUniformLocation(simulationProgram, "aliveMix");
+  uDeadMix = gl.getUniformLocation(simulationProgram, "deadMix");
 }
 
 /**
@@ -294,6 +303,12 @@ function render() {
   if (getJustPaused()) {
     gl.uniform1i(uPaused, ~~getPaused());
     pausedUpdated();
+  }
+
+  if (getMixesChanged()) {
+    gl.uniform1f(uAliveMix, getMixes().alive);
+    gl.uniform1f(uDeadMix, getMixes().dead);
+    setMixesChanged(true);
   }
   gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
   // use the framebuffer to write to our texFront texture
