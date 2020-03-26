@@ -14,7 +14,7 @@ uniform vec4 deadColor;
 
 void main() {
   vec4 originalColor = vec4(texture2D(uSampler, gl_FragCoord.xy / resolution).rgb, 1.0);
-  vec4 newColor = mix(youngColor, oldColor, originalColor.b) * originalColor.r
+  vec4 newColor = mix(oldColor, youngColor, originalColor.b) * originalColor.r
                   + mix(deadColor, trailColor, originalColor.g) * (1.0 - originalColor.r);
   gl_FragColor = newColor;
 }
