@@ -26,6 +26,10 @@ const int stay = 1;
 const int birth = 2;
 const int both = 3;
 
+// constants for color mixing
+const float aliveMix = 0.94;
+const float deadMix = 0.95;
+
 // random function from book of shaders
 float random(vec2 st) {
   return fract(sin(dot(st.xy / 123.45, vec2(12.9898, 78.233))) * 43758.5453123 * (9.0 + seed));
@@ -48,12 +52,12 @@ int get(int x, int y) {
 
 // get stepped color of alive cell
 vec4 getAliveColor(vec4 color) {
-  return vec4(1.0, 0.0, (1.0 - color.r) * 1.0 + 0.94 * color.b, 1.0);
+  return vec4(1.0, 0.0, (1.0 - color.r) * 1.0 + aliveMix * color.b, 1.0);
 }
 
 // get stepped color of dead cell
 vec4 getDeadColor(vec4 color) {
-  return vec4( 0.0, color.r * 1.0 + color.g * 0.95, 0.0, 1.0 );
+  return vec4( 0.0, color.r * 1.0 + color.g * deadMix, 0.0, 1.0 );
 }
 
 void main() {
@@ -89,7 +93,7 @@ void main() {
 
   if (result == stay) {
     // maintain current state
-    gl_FragColor = vec4(color.r, color.g * 0.95, color.r * (0.94 * color.b), 1.0);
+    gl_FragColor = vec4(color.r, color.g * deadMix, color.r * (aliveMix * color.b), 1.0);
   } else if (result == both) {
     // ideal # of neighbors... if cell is living, stay alive, if it is dead, come to life!
     gl_FragColor = getAliveColor(color);
