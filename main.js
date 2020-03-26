@@ -90,6 +90,10 @@ window.onload = function() {
         break;
       case "p":
         playOrPause();
+      case "h":
+        const holder = document.getElementById("guiholder");
+        holder.style.display =
+          holder.style.display === "none" ? "block" : "none";
       default:
         break;
     }

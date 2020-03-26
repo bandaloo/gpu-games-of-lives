@@ -1,6 +1,6 @@
 {
   "name": "gpu-games-of-lives",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "web toy for making variants of game of life",
   "main": "main.js",
   "scripts": {
