@@ -77,7 +77,7 @@ window.onload = function() {
   makeTextures(); // TODO move render out of makeTextures
 
   // stuff for color controls
-  addNumberChangeListeners(canvas, gl, uAliveMix, uDeadMix);
+  addNumberChangeListeners(canvas);
   addColorChangeListeners(gl, uYoungColor, uOldColor, uTrailColor, uDeadColor);
   generateShareUrl();
 
