@@ -60,14 +60,14 @@ pauseButton.addEventListener("click", () => {
 let scale = DEFAULT_SCALE;
 let delay = 1;
 let fillPercent = getVariable("f")
-  ? parseInt(getVariable("f"))
+  ? parseFloat(getVariable("f"))
   : DEFAULT_FILL_PERCENT;
 
 /** @type {Object<string, number[]>} */
 export const rules = {
   conway: [die, die, stay, both, die, die, die, die, die],
   caves: [die, die, die, die, stay, both, both, both, both],
-  highlife: [die, die, stay, both, die, die, birth, die, die]
+  highlife: [die, die, stay, both, die, die, birth, die, die],
 };
 
 /** @type {number[]} */
@@ -139,7 +139,7 @@ export function addChecks(startRules) {
       .toString(2)
       .padStart(2, "0")
       .split("")
-      .map(n => !!parseInt(n));
+      .map((n) => !!parseInt(n));
     checkPair.deadCheckbox.checked = booleanRules[0];
     checkPair.aliveCheckbox.checked = booleanRules[1];
   }
@@ -232,7 +232,7 @@ export function makeRuleString() {
  * @param {string} str
  */
 export function parseRuleString(str) {
-  return str.split("").map(s => parseInt(s));
+  return str.split("").map((s) => parseInt(s));
 }
 
 /**
@@ -276,7 +276,11 @@ export function addNumberChangeListeners(canvas) {
   fillInput.value = "" + fillPercent;
 
   fillInput.addEventListener("change", () => {
-    fillPercent = clamp(parseInt(fillInput.value), 0, 100);
+    fillPercent = clamp(
+      Math.floor(parseFloat(fillInput.value) * 10) / 10,
+      0,
+      100
+    );
     fillInput.value = "" + fillPercent;
     generateShareUrl();
   });

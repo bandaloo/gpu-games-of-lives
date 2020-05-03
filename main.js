@@ -16,7 +16,7 @@ import {
   getFillProb,
   getMixesChanged,
   getMixes,
-  setMixesChanged
+  setMixesChanged,
 } from "./rulescontrols.js";
 
 const glslify = require("glslify");
@@ -52,7 +52,7 @@ let dimensions = { width: null, height: null };
 // state kept for controls
 let delayCount = 0;
 
-window.onload = function() {
+window.onload = function () {
   const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(
     "gl"
   ));
@@ -81,7 +81,7 @@ window.onload = function() {
   addColorChangeListeners(gl, uYoungColor, uOldColor, uTrailColor, uDeadColor);
   generateShareUrl();
 
-  window.addEventListener("keypress", e => {
+  window.addEventListener("keypress", (e) => {
     console.log(e.key);
     switch (e.key) {
       case "r":

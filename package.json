@@ -11,13 +11,13 @@
   "author": "Cole Granof",
   "license": "ISC",
   "dependencies": {
-    "browserify": "^16.5.0",
+    "browserify": "^16.5.1",
     "budo": "^11.6.3",
     "glslify": "^7.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.6",
-    "babel-preset": "^1.1.1",
+    "@babel/core": "^7.9.6",
+    "babel-preset": "^1.1.4",
     "babelify": "^10.0.0"
   },
   "repository": "https://github.com/bandaloo/gpu-games-of-lives",
