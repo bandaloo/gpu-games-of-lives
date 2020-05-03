@@ -57,7 +57,7 @@ pauseButton.addEventListener("click", () => {
   playOrPause();
 });
 
-let scale = DEFAULT_SCALE;
+let scale = getVariable("s") ? parseFloat(getVariable("s")) : DEFAULT_SCALE;
 let delay = 1;
 let fillPercent = getVariable("f")
   ? parseFloat(getVariable("f"))
@@ -248,6 +248,7 @@ export function addNumberChangeListeners(canvas) {
     scale = clamp(parseInt(scaleInput.value), MIN_SCALE, MAX_SCALE);
     scaleInput.value = "" + scale;
     resizeCanvas(canvas);
+    generateShareUrl();
   });
 
   scaleInput.min = "" + MIN_SCALE;
@@ -358,7 +359,8 @@ export function generateShareUrl() {
     "&r=" +
     makeRuleString() +
     "&f=" +
-    fillPercent;
+    fillPercent +
+    (scale !== DEFAULT_SCALE ? "&s=" + scale : "");
   shareText.innerHTML = url + query;
   // TODO should it be innerText?
 }
