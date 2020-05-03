@@ -54,6 +54,10 @@
         position: absolute;
       }
 
+      .share {
+        margin-right: 6px;
+      }
+
       .button {
         background-color: #00000000;
         color: white;
@@ -166,14 +170,14 @@
         </div>
       </div>
       <!-- TODO fix the hard coded left -->
-      <div class="message control overlay" style="left: 172px; width: 340px;">
-        <button class="button" id="copybutton">copy</button>
+      <div class="message control overlay" style="left: 172px; width: auto;">
+        <button class="button share" id="copybutton">copy</button>
         <textarea
           readonly
           class="textarea"
           id="sharetext"
           rows="2"
-          cols="50"
+          cols="40"
         ></textarea>
       </div>
       <div class="bar overlay" style="right: 0px; width: auto;">
