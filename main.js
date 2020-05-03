@@ -82,7 +82,6 @@ window.onload = function () {
   generateShareUrl();
 
   window.addEventListener("keypress", (e) => {
-    console.log(e.key);
     switch (e.key) {
       case "r":
         time = 0;
@@ -92,9 +91,7 @@ window.onload = function () {
         playOrPause();
         break;
       case "h":
-        const holder = document.getElementById("guiholder");
-        holder.style.display =
-          holder.style.display === "none" ? "block" : "none";
+        toggleDiv("guiholder");
         break;
       default:
         break;
@@ -104,6 +101,13 @@ window.onload = function () {
   document.getElementById("randombutton").addEventListener("click", () => {
     time = 0;
     setPaused(false);
+  });
+
+  // help toggle
+  const helpButton = document.getElementById("helpbutton");
+  helpButton.addEventListener("click", () => {
+    const result = toggleDiv("instructions");
+    helpButton.innerText = result ? "show help" : "hide help";
   });
 };
 
@@ -357,4 +361,14 @@ function render() {
   gl.drawArrays(gl.TRIANGLES, 0, 6);
   // update time on CPU and GPU
   time++;
+}
+
+/**
+ * show or hide a div
+ * @param {string} id
+ */
+function toggleDiv(id) {
+  const holder = document.getElementById(id);
+  holder.style.display = holder.style.display === "none" ? "block" : "none";
+  return holder.style.display === "none";
 }

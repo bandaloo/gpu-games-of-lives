@@ -18,6 +18,17 @@
         padding: 6px;
       }
 
+      h2,
+      h3 {
+        margin: 4px;
+      }
+
+      .help {
+        margin: 4px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+      }
+
       a {
         color: #c6c6c6;
       }
@@ -170,19 +181,84 @@
         </div>
       </div>
       <!-- TODO fix the hard coded left -->
-      <div class="message control overlay" style="left: 172px; width: auto;">
-        <button class="button share" id="copybutton">copy</button>
-        <textarea
-          readonly
-          class="textarea"
-          id="sharetext"
-          rows="2"
-          cols="40"
-        ></textarea>
+      <div class="bar overlay" style="left: 172px; width: auto;">
+        <div class="message control" style="left: 172px; width: auto;">
+          <button class="button share" id="copybutton">copy</button>
+          <textarea
+            readonly
+            class="textarea"
+            id="sharetext"
+            rows="2"
+            cols="40"
+          ></textarea>
+        </div>
+        <div
+          id="instructionscontainer"
+          class="message"
+          style="width: 200px; height: auto;"
+        >
+          <button class="button fill" id="helpbutton">
+            show help
+          </button>
+          <!-- TODO currently height is hard coded to match side-->
+          <div
+            id="instructions"
+            style="height: 569px; overflow: scroll; display: none;"
+          >
+            <h3>rules</h3>
+            <p class="help">
+              The table of checkboxes represents the rules of the cellular
+              automata. For example, if a checkbox is checked in the "2" row and
+              "alive" column, that means a cell with two neighbors that is alive
+              will stay alive in the next step. If it were unchecked, the cell
+              would go from alive to dead instead. A checked box in the "dead"
+              column means that cell will come alive for that row's amount of
+              neighbors.
+            </p>
+            <p class="help">
+              You can change the starting conditions by changing the "empty %"
+              field. Reset the simulation by hitting "randomize" to see the new
+              starting conditions. Some rulesets are more interesting with very
+              sparse starting conditions, so be sure to experiment!
+            </p>
+            <h3>look</h3>
+            <p class="help">
+              You can change the colors to create many interesting effects. The
+              "young" is the color of a newly born cell. As a cell ages, the
+              color will mix with the "old" color. The "trail" and "dead" color
+              is the same concept but for dead cells. The "alive mix" and "dead
+              mix" parameters control how quickly this color will change.
+            </p>
+            <p class="help">
+              By setting "scale" to 1, each pixel will be a single cell. The
+              entire board is 1920x1080 pixels. To zoom in, set the scale to a
+              value greater than one. When zoomed in, pan around with your
+              trackpad, scroll wheel or scroll bars.
+            </p>
+            <h3>sharing</h3>
+            <p class="help">
+              You can share your presets with the shareable link at the top of
+              the screen. This will not save the current state of the board, but
+              will rather save the colors, scale, rules and sparsity you chose.
+              (If you make something interesting, please @ me on Twitter!)
+            </p>
+            <p class="help">
+              You can also save the entire image by right clicking the
+              simulation and selecting "Save Image As..." (or a similar message
+              depending on your browser.) Have fun!
+            </p>
+            <h3>controls</h3>
+            <ul class="help">
+              <li>H hides/shows the GUI</li>
+              <li>R randomizes the board</li>
+              <li>P plays/pauses</li>
+            </ul>
+          </div>
+        </div>
       </div>
       <div class="bar overlay" style="right: 0px; width: auto;">
         <div class="message" style="width: auto;">
-          <h2 style="margin: 4px;">games of lives maker</h2>
+          <h2 style="text-align: right;">games of lives maker</h2>
           <p style="margin: 4px; text-align: right;">v0.4.0</p>
         </div>
         <div class="message" style="width: auto;">
